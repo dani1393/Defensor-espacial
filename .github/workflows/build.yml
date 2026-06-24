@@ -1,0 +1,35 @@
+name: Build Windows EXE
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install pygame pyinstaller
+
+      - name: Gerar o executavel
+        run: pyinstaller --onefile --windowed --name "DefensorEspacial" main.py
+
+      - name: Copiar os assets para junto do .exe
+        run: xcopy /E /I /Y assets dist\assets
+
+      - name: Enviar o pacote (exe + assets)
+        uses: actions/upload-artifact@v4
+        with:
+          name: DefensorEspacial-Windows
+          path: dist
